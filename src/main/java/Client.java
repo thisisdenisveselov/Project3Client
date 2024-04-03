@@ -72,6 +72,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -81,11 +82,11 @@ import java.util.*;
 
 public class Client {
     public static void main(String[] args) {
-        final String sensorName = "MySensor2";
+        final String sensorName = "MySensor888";
 
-       // sensorRegistration(sensorName);
-       // add1000Measurements(sensorName);
-        getMeasurements();
+      //  sensorRegistration(sensorName);
+        add1000Measurements(sensorName);
+      //  getMeasurements();
     }
 
     private static void sensorRegistration(String sensorName) {
@@ -95,8 +96,7 @@ public class Client {
 
         jsonToSend.put("name", sensorName);
 
-        String response = makePostRequest(jsonToSend, url);
-        System.out.println(response);
+        makePostRequest(jsonToSend, url);
     }
 
     private static void add1000Measurements(String sensorName) {
@@ -125,13 +125,13 @@ public class Client {
             jsonToSend.put("raining", raining);
             jsonToSend.put("sensor", Map.of("name", sensorName));
 
-            String response = makePostRequest(jsonToSend, url);
-            System.out.println(response);
+            makePostRequest(jsonToSend, url);
+
         }
 
     }
 
-    private static String makePostRequest(Map<String, Object> jsonToSend, String url) {
+    private static void makePostRequest(Map<String, Object> jsonToSend, String url) {
         RestTemplate restTemplate = new RestTemplate();
 
         final HttpHeaders headers = new HttpHeaders();
@@ -139,7 +139,14 @@ public class Client {
 
         HttpEntity<Object> request = new HttpEntity<>(jsonToSend, headers);
 
-        return restTemplate.postForObject(url, request, String.class);
+        try {
+            restTemplate.postForObject(url, request, String.class);
+
+            System.out.println("Measurement sent to the server!");
+        } catch (HttpClientErrorException e) {
+            System.out.println("Error!");
+            System.out.println(e.getMessage());
+        }
     }
     private static String getMeasurements() {
         RestTemplate restTemplate = new RestTemplate();
